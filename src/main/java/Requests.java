@@ -1,12 +1,19 @@
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by Ivan Chaykin
@@ -15,28 +22,23 @@ import java.net.URLEncoder;
  */
 public class Requests {
 
-    public String get(String title, String year){
+    private String url = "https://api.themoviedb.org/3/";
+
+    public SearchResult request(String type, Map<String, Object> parameters) {
+
+        RequestBuilder requestBuilder = RequestBuilder.get(url + type + "?");
+        ObjectMapper mapper = new ObjectMapper();
+
+        if (!parameters.isEmpty()) {
+            parameters.put("api_key", InitProperties.getConfig().getProperty("api_key"));
+            for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+                requestBuilder.addParameter(entry.getKey(), entry.getValue().toString());
+            }
+        }
 
         try {
-            String api_key = "";
-            String url = "https://api.themoviedb.org/3/search/movie?";
-            String release_year = "";
-            if (year != null) {
-                release_year = "&primary_release_year="+year;
-            }
-
-            String request = "api_key=" + api_key
-                    + "&language=ru-RU"
-                    + "&page=1"
-                    + "&include_adult=true"
-                    + "&query=" + URLEncoder.encode(title, "UTF-8")
-                    + release_year;
-
             CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-            HttpGet getRequest = new HttpGet(url + request);
-            getRequest.addHeader("accept", "application/json");
-
-            HttpResponse response = httpClient.execute(getRequest);
+            HttpResponse response = httpClient.execute(requestBuilder.build());
 
             if (response.getStatusLine().getStatusCode() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : "
@@ -52,16 +54,13 @@ public class Requests {
             while ((output = br.readLine()) != null) {
                 sb.append(output);
             }
-
             httpClient.close();
 
-            return sb.toString();
+            return mapper.readValue(sb.toString(), SearchResult.class);
 
         } catch (IOException e) {
-
             e.printStackTrace();
         }
-
         return null;
     }
 }

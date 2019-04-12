@@ -13,7 +13,6 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SearchResult<T> {
 
-    @JsonProperty("page")
     public Long page;
 
     @JsonProperty("total_results")
@@ -23,6 +22,6 @@ public class SearchResult<T> {
     public Long totalPages;
 
     @JsonProperty("results")
-    public List<T> results = null;
+    public List<T> results;
 
 }
