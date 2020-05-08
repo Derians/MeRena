@@ -1,18 +1,7 @@
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.FilenameUtils;
-
-import java.io.*;
+import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * Created by Ivan Chaykin
@@ -21,9 +10,11 @@ import java.util.regex.Pattern;
  */
 public class Main {
 
-    public static void main(String[] args) throws IOException, URISyntaxException {
+    public static void main(String[] args) {
 
-Requests requests = new Requests();
+        Requests requests = new Requests();
+
+        InitProperties.initProperties();
 
         Map<String, Object> parameters = new LinkedHashMap<>();
         TitlePreparation titlePreparation = new TitlePreparation();
